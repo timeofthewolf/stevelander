@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "stevelander",
+  "version": "${version}",
+  "name": "Stevelander",
+  "description": "A minimal Fabric mod providing Flight (Right Ctrl) and X-Ray (Right Shift).",
+  "authors": [
+    "Lowe Wady"
+  ],
+  "license": "GPL-3.0-or-later",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "net.stevelander.Stevelander"
+    ]
+  },
+  "mixins": [
+    {
+      "config": "stevelander.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "~${minecraft_version}",
+    "java": ">=25"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.stevelander.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "BlockMixin",
+    "ClientPacketListenerMixin",
+    "ConnectionMixin",
+    "KeyboardInputMixin",
+    "LightmapRenderStateExtractorMixin",
+    "ServerboundMovePlayerPacketMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
