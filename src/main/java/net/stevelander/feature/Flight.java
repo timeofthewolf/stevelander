@@ -13,13 +13,21 @@ import net.stevelander.StevelanderConfig;
 public final class Flight {
     private static final double BYPASS_FALL_SPEED = -0.04;
 
-    private static final int BYPASS_INTERVAL = 40;
+    private static final int BYPASS_INTERVAL_MIN = 30;
+    private static final int BYPASS_INTERVAL_MAX = 50;
 
-    private static boolean enabled;
+    private static volatile boolean enabled;
 
     private static boolean wasFlyingAllowed;
 
     private static int bypassStage;
+    private static int ticksUntilBypass = scheduleBypass();
+
+    private static int scheduleBypass() {
+        return BYPASS_INTERVAL_MIN
+            + java.util.concurrent.ThreadLocalRandom.current()
+                .nextInt(BYPASS_INTERVAL_MAX - BYPASS_INTERVAL_MIN + 1);
+    }
 
     private Flight() {
     }
@@ -102,11 +110,32 @@ public final class Flight {
         }
 
         final Vec3 strafed = withStrafe(player, horizontal);
-        player.setDeltaMovement(new Vec3(strafed.x, y, strafed.z));
+        player.setDeltaMovement(capDiagonal(new Vec3(strafed.x, y, strafed.z)));
 
-        if (settings.bypassVanillaCheck && player.tickCount % BYPASS_INTERVAL == 0) {
+        if (settings.bypassVanillaCheck && --ticksUntilBypass <= 0) {
             bypassStage = 1;
+            ticksUntilBypass = scheduleBypass();
         }
+    }
+
+    private static Vec3 capDiagonal(Vec3 movement) {
+        final double horizontal = Math.sqrt(movement.x * movement.x + movement.z * movement.z);
+        final double vertical = Math.abs(movement.y);
+        final double cap = Math.max(horizontal, vertical);
+
+        if (cap <= 0.0) {
+            return movement;
+        }
+
+        final double total = Math.sqrt(
+            movement.x * movement.x + movement.y * movement.y + movement.z * movement.z);
+
+        if (total <= cap) {
+            return movement;
+        }
+
+        final double scale = cap / total;
+        return new Vec3(movement.x * scale, movement.y * scale, movement.z * scale);
     }
 
     private static Vec3 withStrafe(LocalPlayer player, double speed) {

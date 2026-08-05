@@ -5,10 +5,15 @@
   "compatibilityLevel": "JAVA_25",
   "client": [
     "BlockMixin",
+    "ClientBrandRetrieverMixin",
     "ClientPacketListenerMixin",
     "ConnectionMixin",
+    "EntityMixin",
     "KeyboardInputMixin",
     "LightmapRenderStateExtractorMixin",
+    "MinecraftMixin",
+    "MultiPlayerGameModeMixin",
+    "PlayerMixin",
     "ServerboundMovePlayerPacketMixin"
   ],
   "injectors": {

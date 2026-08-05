@@ -19,14 +19,14 @@ public final class NoFall {
 
     public static final double RECOVERY_ASCENT = 0.42;
 
-    private static double serverFallDistance;
+    private static volatile double serverFallDistance;
 
-    private static double lastReportedY;
-    private static boolean haveLastReportedY;
+    private static volatile double lastReportedY;
+    private static volatile boolean haveLastReportedY;
 
-    private static int recoveryTicks;
+    private static volatile int recoveryTicks;
 
-    private static boolean expectingSetback;
+    private static volatile boolean expectingSetback;
 
     private NoFall() {
     }

@@ -8,9 +8,11 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.stevelander.feature.AntiHunger;
+import net.stevelander.feature.Criticals;
 import net.stevelander.feature.Flight;
 import net.stevelander.feature.NoFall;
 import net.stevelander.feature.XRay;
+import net.stevelander.ui.OptionsButton;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
 
@@ -47,10 +49,27 @@ public final class Stevelander implements ClientModInitializer {
             config.flight.noFall.mode = mode;
         }
 
+        final String critMode = Criticals.normaliseMode(config.criticals.mode);
+        if (critMode == null) {
+            LoggerFactory.getLogger(MOD_ID).error(
+                "Unknown criticals mode \"{}\", falling back to {}",
+                config.criticals.mode, Criticals.MODE_PACKET
+            );
+            config.criticals.mode = Criticals.MODE_PACKET;
+        } else {
+            config.criticals.mode = critMode;
+        }
+
+        OptionsButton.register();
+
         ClientTickEvents.END_CLIENT_TICK.register(this::onClientTick);
     }
 
     private void onClientTick(Minecraft minecraft) {
+        Safety.run("tick", () -> tick(minecraft));
+    }
+
+    private void tick(Minecraft minecraft) {
         final boolean acceptsInput = minecraft.gui.screen() == null;
         final Window window = minecraft.getWindow();
 
@@ -67,6 +86,7 @@ public final class Stevelander implements ClientModInitializer {
         this.xrayKeyWasDown = xrayKeyDown;
 
         AntiHunger.tick(minecraft);
+        Criticals.tick(minecraft);
         Flight.tick(minecraft);
         NoFall.tick();
     }

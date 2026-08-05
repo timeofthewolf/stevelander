@@ -19,8 +19,121 @@ public final class StevelanderConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public Keybinds keybinds = new Keybinds();
+    public boolean fullBright = true;
+    public boolean spoofClientBrand = true;
+    public XRay xray = new XRay();
+
+    public static final class XRay {
+        public java.util.List<String> blocks = new java.util.ArrayList<>(java.util.List.of(
+            "minecraft:coal_ore",
+            "minecraft:copper_ore",
+            "minecraft:diamond_ore",
+            "minecraft:emerald_ore",
+            "minecraft:gold_ore",
+            "minecraft:iron_ore",
+            "minecraft:lapis_ore",
+            "minecraft:redstone_ore",
+            "minecraft:deepslate_coal_ore",
+            "minecraft:deepslate_copper_ore",
+            "minecraft:deepslate_diamond_ore",
+            "minecraft:deepslate_emerald_ore",
+            "minecraft:deepslate_gold_ore",
+            "minecraft:deepslate_iron_ore",
+            "minecraft:deepslate_lapis_ore",
+            "minecraft:deepslate_redstone_ore",
+            "minecraft:coal_block",
+            "minecraft:diamond_block",
+            "minecraft:emerald_block",
+            "minecraft:gold_block",
+            "minecraft:iron_block",
+            "minecraft:lapis_block",
+            "minecraft:redstone_block",
+            "minecraft:raw_copper_block",
+            "minecraft:raw_gold_block",
+            "minecraft:raw_iron_block",
+            "minecraft:ancient_debris",
+            "minecraft:nether_gold_ore",
+            "minecraft:nether_quartz_ore",
+            "minecraft:netherite_block",
+            "minecraft:chest",
+            "minecraft:trapped_chest",
+            "minecraft:ender_chest",
+            "minecraft:barrel",
+            "minecraft:shulker_box",
+            "minecraft:hopper",
+            "minecraft:dispenser",
+            "minecraft:dropper",
+            "minecraft:spawner",
+            "minecraft:beacon",
+            "minecraft:enchanting_table",
+            "minecraft:dragon_egg",
+            "minecraft:end_portal",
+            "minecraft:end_portal_frame",
+            "minecraft:nether_portal",
+            "minecraft:tnt",
+            "minecraft:lava",
+            "minecraft:water"
+        ));
+    }
     public Flight flight = new Flight();
     public AntiHunger antiHunger = new AntiHunger();
+    public KeepSprint keepSprint = new KeepSprint();
+    public MaceKill maceKill = new MaceKill();
+    public Criticals criticals = new Criticals();
+    public AntiExploit antiExploit = new AntiExploit();
+    public LiquidPlace liquidPlace = new LiquidPlace();
+    public AirPlace airPlace = new AirPlace();
+
+    public static final class KeepSprint {
+        public boolean enabled = true;
+        public float motion = 100.0F;
+        public float motionWhenHurt = 100.0F;
+        public int hurtTimeMin = 1;
+        public int hurtTimeMax = 10;
+        public float chance = 100.0F;
+    }
+
+    public static final class MaceKill {
+        public boolean enabled = false;
+        public int fallHeight = 22;
+    }
+
+    public static final class Criticals {
+        public boolean enabled = false;
+        public String mode = "PACKET";
+        public String packetMode = "NO_CHEAT_PLUS";
+        public Jump jump = new Jump();
+
+        public static final class Jump {
+            public float height = 0.42F;
+            public float range = 4.0F;
+            public boolean canBeSeen = true;
+        }
+    }
+
+    public static final class AntiExploit {
+        public boolean enabled = true;
+        public boolean limitExplosionStrength = true;
+        public boolean limitParticlesAmount = true;
+        public boolean limitParticlesSpeed = true;
+        public float maxExplosionStrength = 20.0F;
+        public int maxParticlesAmount = 2000;
+        public float maxParticlesSpeed = 10.0F;
+        public boolean cancelDemo = true;
+        public boolean ignoreProtocolKick = true;
+        public boolean notify = true;
+    }
+
+    public static final class LiquidPlace {
+        public boolean enabled = false;
+    }
+
+    public static final class AirPlace {
+        public boolean enabled = false;
+        public boolean customRange = false;
+        public float range = 3.0F;
+        public boolean placeInLiquid = false;
+    }
 
     public static final class Keybinds {
         public String flight = "RIGHT_CONTROL";
@@ -60,7 +173,7 @@ public final class StevelanderConfig {
 
         public boolean keepFloating = true;
 
-        public boolean noSprint = true;
+        public boolean noSprint = false;
 
         public boolean noSprintWhileSwimming = false;
     }
@@ -136,6 +249,10 @@ public final class StevelanderConfig {
         final StevelanderConfig config = new StevelanderConfig();
         config.save(path);
         return config;
+    }
+
+    public void save() {
+        save(FabricLoader.getInstance().getConfigDir().resolve(Stevelander.MOD_ID + ".json"));
     }
 
     private void save(Path path) {
