@@ -61,5 +61,10 @@
   "stevelander.antiExploit.limitParticlesSpeed": "Limit Particle Speed",
   "stevelander.antiExploit.notify": "Notify",
   "stevelander.antiExploit.maxExplosionStrength": "Max Explosion",
-  "stevelander.antiExploit.maxParticlesAmount": "Max Particles"
+  "stevelander.antiExploit.maxParticlesAmount": "Max Particles",
+  "stevelander.group.keybinds": "Keybinds",
+  "stevelander.keybind.flight": "Flight",
+  "stevelander.keybind.xray": "X-Ray",
+  "stevelander.keybind.press": "Press a key",
+  "stevelander.keybind.unbound": "Unbound"
 }

@@ -13,7 +13,6 @@ import net.stevelander.feature.Flight;
 import net.stevelander.feature.NoFall;
 import net.stevelander.feature.XRay;
 import net.stevelander.ui.OptionsButton;
-import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
 
 @Environment(EnvType.CLIENT)
@@ -21,9 +20,6 @@ public final class Stevelander implements ClientModInitializer {
     public static final String MOD_ID = "stevelander";
 
     private static StevelanderConfig config = new StevelanderConfig();
-
-    private int flightKey = GLFW.GLFW_KEY_RIGHT_CONTROL;
-    private int xrayKey = GLFW.GLFW_KEY_RIGHT_SHIFT;
 
     private boolean flightKeyWasDown;
     private boolean xrayKeyWasDown;
@@ -35,8 +31,7 @@ public final class Stevelander implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         config = StevelanderConfig.load();
-        this.flightKey = StevelanderConfig.resolveKey(config.keybinds.flight, GLFW.GLFW_KEY_RIGHT_CONTROL);
-        this.xrayKey = StevelanderConfig.resolveKey(config.keybinds.xray, GLFW.GLFW_KEY_RIGHT_SHIFT);
+        Keybinds.reload();
 
         final String mode = NoFall.normaliseMode(config.flight.noFall.mode);
         if (mode == null) {
@@ -73,13 +68,13 @@ public final class Stevelander implements ClientModInitializer {
         final boolean acceptsInput = minecraft.gui.screen() == null;
         final Window window = minecraft.getWindow();
 
-        final boolean flightKeyDown = acceptsInput && InputConstants.isKeyDown(window, this.flightKey);
+        final boolean flightKeyDown = acceptsInput && InputConstants.isKeyDown(window, Keybinds.flight());
         if (flightKeyDown && !this.flightKeyWasDown) {
             Flight.toggle();
         }
         this.flightKeyWasDown = flightKeyDown;
 
-        final boolean xrayKeyDown = acceptsInput && InputConstants.isKeyDown(window, this.xrayKey);
+        final boolean xrayKeyDown = acceptsInput && InputConstants.isKeyDown(window, Keybinds.xray());
         if (xrayKeyDown && !this.xrayKeyWasDown) {
             XRay.toggle();
         }

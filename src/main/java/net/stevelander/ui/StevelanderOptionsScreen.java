@@ -2,14 +2,19 @@ package net.stevelander.ui;
 
 import java.util.List;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.options.OptionsSubScreen;
 import net.minecraft.network.chat.Component;
+import net.stevelander.Keybinds;
 import net.stevelander.Stevelander;
 import net.stevelander.StevelanderConfig;
 import net.stevelander.feature.Criticals;
 import net.stevelander.feature.NoFall;
+import org.lwjgl.glfw.GLFW;
 
 public class StevelanderOptionsScreen extends OptionsSubScreen {
 
@@ -20,6 +25,12 @@ public class StevelanderOptionsScreen extends OptionsSubScreen {
     private static final List<String> PACKET_MODES = List.of(
         "NO_CHEAT_PLUS", "VANILLA", "FALLING", "LOW", "DOWN");
 
+    private enum Bind { FLIGHT, XRAY }
+
+    private Button flightBind;
+    private Button xrayBind;
+    private Bind rebinding;
+
     public StevelanderOptionsScreen(Screen lastScreen) {
         super(lastScreen, net.minecraft.client.Minecraft.getInstance().options,
             Component.translatable("stevelander.options.title"));
@@ -28,6 +39,12 @@ public class StevelanderOptionsScreen extends OptionsSubScreen {
     @Override
     protected void addOptions() {
         final StevelanderConfig config = Stevelander.config();
+
+        this.list.addHeader(Component.translatable("stevelander.group.keybinds"));
+        this.flightBind = Button.builder(Component.empty(), b -> beginRebind(Bind.FLIGHT)).build();
+        this.xrayBind = Button.builder(Component.empty(), b -> beginRebind(Bind.XRAY)).build();
+        this.list.addSmall(this.flightBind, this.xrayBind);
+        refreshBindLabels();
 
         this.list.addSmall(
             Options.bool("stevelander.fullBright", () -> config.fullBright, v -> config.fullBright = v),
@@ -228,6 +245,53 @@ public class StevelanderOptionsScreen extends OptionsSubScreen {
                 () -> config.antiExploit.maxParticlesAmount,
                 v -> config.antiExploit.maxParticlesAmount = v)
         );
+    }
+
+    private void beginRebind(Bind bind) {
+        this.rebinding = bind;
+        refreshBindLabels();
+    }
+
+    private void refreshBindLabels() {
+        if (this.flightBind == null || this.xrayBind == null) {
+            return;
+        }
+
+        this.flightBind.setMessage(label("stevelander.keybind.flight", Keybinds.flight(), Bind.FLIGHT));
+        this.xrayBind.setMessage(label("stevelander.keybind.xray", Keybinds.xray(), Bind.XRAY));
+    }
+
+    private Component label(String key, int bound, Bind bind) {
+        final Component value = this.rebinding == bind
+            ? Component.literal("> ")
+                .append(Component.translatable("stevelander.keybind.press"))
+                .append(" <")
+                .withStyle(ChatFormatting.YELLOW)
+            : Keybinds.displayName(bound);
+
+        return Component.translatable(key).append(": ").append(value);
+    }
+
+    @Override
+    public boolean keyPressed(KeyEvent event) {
+        if (this.rebinding == null) {
+            return super.keyPressed(event);
+        }
+
+        final int key = event.key() == GLFW.GLFW_KEY_ESCAPE
+            ? GLFW.GLFW_KEY_UNKNOWN
+            : InputConstants.getKey(event).getValue();
+
+        if (this.rebinding == Bind.FLIGHT) {
+            Keybinds.setFlight(key);
+        } else {
+            Keybinds.setXray(key);
+        }
+
+        this.rebinding = null;
+        refreshBindLabels();
+        Stevelander.config().save();
+        return true;
     }
 
     @Override
