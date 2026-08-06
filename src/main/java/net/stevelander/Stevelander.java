@@ -11,6 +11,7 @@ import net.stevelander.feature.AntiHunger;
 import net.stevelander.feature.Criticals;
 import net.stevelander.feature.Flight;
 import net.stevelander.feature.NoFall;
+import net.stevelander.feature.SpearKill;
 import net.stevelander.feature.XRay;
 import net.stevelander.ui.OptionsButton;
 import org.slf4j.LoggerFactory;
@@ -82,7 +83,11 @@ public final class Stevelander implements ClientModInitializer {
 
         AntiHunger.tick(minecraft);
         Criticals.tick(minecraft);
-        Flight.tick(minecraft);
+
+        if (!SpearKill.tick(minecraft)) {
+            Flight.tick(minecraft);
+        }
+
         NoFall.tick();
     }
 }

@@ -183,6 +183,18 @@ public class StevelanderOptionsScreen extends OptionsSubScreen {
                 () -> config.maceKill.fallHeight, v -> config.maceKill.fallHeight = v)
         );
         this.list.addSmall(
+            Options.bool("stevelander.spearKill.enabled",
+                () -> config.spearKill.enabled, v -> config.spearKill.enabled = v),
+            Options.bool("stevelander.spearKill.returnAfterHit",
+                () -> config.spearKill.returnAfterHit, v -> config.spearKill.returnAfterHit = v)
+        );
+        this.list.addSmall(
+            Options.floatSlider("stevelander.spearKill.maxSpeed", 2.0F, 10.0F, 0.1F,
+                () -> config.spearKill.maxSpeed, v -> config.spearKill.maxSpeed = v),
+            Options.floatSlider("stevelander.spearKill.maxTargetDistance", 3.0F, 200.0F, 1.0F,
+                () -> config.spearKill.maxTargetDistance, v -> config.spearKill.maxTargetDistance = v)
+        );
+        this.list.addSmall(
             Options.bool("stevelander.criticals.enabled",
                 () -> config.criticals.enabled, v -> config.criticals.enabled = v),
             Options.bool("stevelander.criticals.canBeSeen",

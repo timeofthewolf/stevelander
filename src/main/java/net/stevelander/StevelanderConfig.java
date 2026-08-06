@@ -79,6 +79,7 @@ public final class StevelanderConfig {
     public AntiHunger antiHunger = new AntiHunger();
     public KeepSprint keepSprint = new KeepSprint();
     public MaceKill maceKill = new MaceKill();
+    public SpearKill spearKill = new SpearKill();
     public Criticals criticals = new Criticals();
     public AntiExploit antiExploit = new AntiExploit();
     public LiquidPlace liquidPlace = new LiquidPlace();
@@ -96,6 +97,13 @@ public final class StevelanderConfig {
     public static final class MaceKill {
         public boolean enabled = false;
         public int fallHeight = 22;
+    }
+
+    public static final class SpearKill {
+        public boolean enabled = false;
+        public float maxTargetDistance = 50.0F;
+        public float maxSpeed = 7.0F;
+        public boolean returnAfterHit = true;
     }
 
     public static final class Criticals {
