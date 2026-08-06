@@ -11,6 +11,7 @@
     "EntityMixin",
     "KeyboardInputMixin",
     "LightmapRenderStateExtractorMixin",
+    "LocalPlayerMixin",
     "MinecraftMixin",
     "MultiPlayerGameModeMixin",
     "PlayerMixin",

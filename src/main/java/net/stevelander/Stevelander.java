@@ -9,9 +9,11 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.stevelander.feature.AntiHunger;
 import net.stevelander.feature.Criticals;
+import net.stevelander.feature.FireTrail;
 import net.stevelander.feature.Flight;
 import net.stevelander.feature.NoFall;
 import net.stevelander.feature.SpearKill;
+import net.stevelander.feature.Warp;
 import net.stevelander.feature.XRay;
 import net.stevelander.ui.OptionsButton;
 import org.slf4j.LoggerFactory;
@@ -88,6 +90,10 @@ public final class Stevelander implements ClientModInitializer {
             Flight.tick(minecraft);
         }
 
+        FireTrail.tick(minecraft, acceptsInput && InputConstants.isKeyDown(window, Keybinds.fireTrail()));
+
         NoFall.tick();
+
+        Warp.clearSetback();
     }
 }

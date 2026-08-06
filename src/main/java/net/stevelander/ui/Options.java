@@ -65,7 +65,7 @@ public final class Options {
         return new OptionInstance<>(
             key,
             OptionInstance.noTooltip(),
-            (caption, value) -> Component.translatable(key).append(": ").append(value),
+            (caption, value) -> Component.literal(value),
             new OptionInstance.Enum<>(values, com.mojang.serialization.Codec.STRING),
             get.get(),
             set::accept

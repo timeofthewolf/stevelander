@@ -80,6 +80,7 @@ public final class StevelanderConfig {
     public KeepSprint keepSprint = new KeepSprint();
     public MaceKill maceKill = new MaceKill();
     public SpearKill spearKill = new SpearKill();
+    public FireTrail fireTrail = new FireTrail();
     public Criticals criticals = new Criticals();
     public AntiExploit antiExploit = new AntiExploit();
     public LiquidPlace liquidPlace = new LiquidPlace();
@@ -101,9 +102,39 @@ public final class StevelanderConfig {
 
     public static final class SpearKill {
         public boolean enabled = false;
-        public float maxTargetDistance = 50.0F;
+        public String mode = "TELEPORT";
         public float maxSpeed = 7.0F;
         public boolean returnAfterHit = true;
+        public float maxTargetDistance = 50.0F;
+
+        public float lockAngle = 25.0F;
+
+        public float overkill = 4.0F;
+
+        public int holdTicks = 2;
+
+        public int maxPackets = 5;
+    }
+
+    public static final class FireTrail {
+        public boolean enabled = false;
+
+        public int durabilityReserve = 1;
+
+        public float gazeRange = 64.0F;
+        public boolean extendedRange = false;
+        public boolean carrierBlocks = false;
+        public int maxPackets = 5;
+
+        public boolean avoidDamage = true;
+
+        public float safeDistance = 1.5F;
+
+        public int lookaheadTicks = 10;
+
+        public boolean reroute = true;
+
+        public int rerouteRadius = 3;
     }
 
     public static final class Criticals {
@@ -146,6 +177,7 @@ public final class StevelanderConfig {
     public static final class Keybinds {
         public String flight = "RIGHT_CONTROL";
         public String xray = "RIGHT_SHIFT";
+        public String fireTrail = "G";
     }
 
     public static final class Flight {

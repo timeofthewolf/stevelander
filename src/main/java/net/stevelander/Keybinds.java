@@ -12,11 +12,13 @@ public final class Keybinds {
 
     public static final int DEFAULT_FLIGHT = GLFW.GLFW_KEY_RIGHT_CONTROL;
     public static final int DEFAULT_XRAY = GLFW.GLFW_KEY_RIGHT_SHIFT;
+    public static final int DEFAULT_FIRE_TRAIL = GLFW.GLFW_KEY_G;
 
     private static final String PREFIX = "GLFW_KEY_";
 
     private static volatile int flight = DEFAULT_FLIGHT;
     private static volatile int xray = DEFAULT_XRAY;
+    private static volatile int fireTrail = DEFAULT_FIRE_TRAIL;
 
     private static Map<Integer, String> namesByCode;
 
@@ -27,6 +29,7 @@ public final class Keybinds {
         final StevelanderConfig config = Stevelander.config();
         flight = StevelanderConfig.resolveKey(config.keybinds.flight, DEFAULT_FLIGHT);
         xray = StevelanderConfig.resolveKey(config.keybinds.xray, DEFAULT_XRAY);
+        fireTrail = StevelanderConfig.resolveKey(config.keybinds.fireTrail, DEFAULT_FIRE_TRAIL);
     }
 
     public static int flight() {
@@ -37,6 +40,10 @@ public final class Keybinds {
         return xray;
     }
 
+    public static int fireTrail() {
+        return fireTrail;
+    }
+
     public static void setFlight(int key) {
         flight = key;
         Stevelander.config().keybinds.flight = nameOf(key);
@@ -45,6 +52,11 @@ public final class Keybinds {
     public static void setXray(int key) {
         xray = key;
         Stevelander.config().keybinds.xray = nameOf(key);
+    }
+
+    public static void setFireTrail(int key) {
+        fireTrail = key;
+        Stevelander.config().keybinds.fireTrail = nameOf(key);
     }
 
     public static Component displayName(int key) {
@@ -74,7 +86,6 @@ public final class Keybinds {
             try {
                 map.putIfAbsent(field.getInt(null), field.getName().substring(PREFIX.length()));
             } catch (IllegalAccessException ignored) {
-                // Not readable, so it cannot be named.
             }
         }
 

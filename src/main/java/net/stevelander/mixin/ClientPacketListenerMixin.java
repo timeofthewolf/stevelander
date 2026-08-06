@@ -6,6 +6,8 @@ import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.stevelander.feature.AntiExploit;
 import net.stevelander.feature.Flight;
+import net.stevelander.feature.SpearKill;
+import net.stevelander.feature.Warp;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,6 +22,8 @@ public abstract class ClientPacketListenerMixin {
 
     @Inject(method = "handleMovePlayer", at = @At("RETURN"))
     private void stevelander$detectSetback(ClientboundPlayerPositionPacket packet, CallbackInfo ci) {
+        Warp.onSetback();
+        SpearKill.abort();
         Flight.onSetback();
     }
 

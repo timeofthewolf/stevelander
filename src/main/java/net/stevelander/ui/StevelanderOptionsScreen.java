@@ -14,6 +14,7 @@ import net.stevelander.Stevelander;
 import net.stevelander.StevelanderConfig;
 import net.stevelander.feature.Criticals;
 import net.stevelander.feature.NoFall;
+import net.stevelander.feature.SpearKill;
 import org.lwjgl.glfw.GLFW;
 
 public class StevelanderOptionsScreen extends OptionsSubScreen {
@@ -24,11 +25,14 @@ public class StevelanderOptionsScreen extends OptionsSubScreen {
         Criticals.MODE_NONE, Criticals.MODE_PACKET, Criticals.MODE_NO_GROUND, Criticals.MODE_JUMP);
     private static final List<String> PACKET_MODES = List.of(
         "NO_CHEAT_PLUS", "VANILLA", "FALLING", "LOW", "DOWN");
+    private static final List<String> SPEARKILL_MODES = List.of(
+        SpearKill.MODE_TELEPORT, SpearKill.MODE_FLIGHT);
 
-    private enum Bind { FLIGHT, XRAY }
+    private enum Bind { FLIGHT, XRAY, FIRE_TRAIL }
 
     private Button flightBind;
     private Button xrayBind;
+    private Button fireTrailBind;
     private Bind rebinding;
 
     public StevelanderOptionsScreen(Screen lastScreen) {
@@ -43,7 +47,9 @@ public class StevelanderOptionsScreen extends OptionsSubScreen {
         this.list.addHeader(Component.translatable("stevelander.group.keybinds"));
         this.flightBind = Button.builder(Component.empty(), b -> beginRebind(Bind.FLIGHT)).build();
         this.xrayBind = Button.builder(Component.empty(), b -> beginRebind(Bind.XRAY)).build();
+        this.fireTrailBind = Button.builder(Component.empty(), b -> beginRebind(Bind.FIRE_TRAIL)).build();
         this.list.addSmall(this.flightBind, this.xrayBind);
+        this.list.addBig(this.fireTrailBind);
         refreshBindLabels();
 
         this.list.addSmall(
@@ -62,6 +68,7 @@ public class StevelanderOptionsScreen extends OptionsSubScreen {
         addVehicle(config);
         addAntiHunger(config);
         addCombat(config);
+        addFireTrail(config);
         addWorld(config);
         addAntiExploitDetail(config);
     }
@@ -185,14 +192,28 @@ public class StevelanderOptionsScreen extends OptionsSubScreen {
         this.list.addSmall(
             Options.bool("stevelander.spearKill.enabled",
                 () -> config.spearKill.enabled, v -> config.spearKill.enabled = v),
+            Options.floatSlider("stevelander.spearKill.lockAngle", 1.0F, 90.0F, 1.0F,
+                () -> config.spearKill.lockAngle, v -> config.spearKill.lockAngle = v)
+        );
+        this.list.addBig(Options.choice("stevelander.spearKill.mode", SPEARKILL_MODES,
+            () -> config.spearKill.mode, v -> config.spearKill.mode = v).createButton(this.options));
+        this.list.addSmall(
+            Options.floatSlider("stevelander.spearKill.maxSpeed", 2.0F, 10.0F, 0.1F,
+                () -> config.spearKill.maxSpeed, v -> config.spearKill.maxSpeed = v),
             Options.bool("stevelander.spearKill.returnAfterHit",
                 () -> config.spearKill.returnAfterHit, v -> config.spearKill.returnAfterHit = v)
         );
         this.list.addSmall(
-            Options.floatSlider("stevelander.spearKill.maxSpeed", 2.0F, 10.0F, 0.1F,
-                () -> config.spearKill.maxSpeed, v -> config.spearKill.maxSpeed = v),
             Options.floatSlider("stevelander.spearKill.maxTargetDistance", 3.0F, 200.0F, 1.0F,
-                () -> config.spearKill.maxTargetDistance, v -> config.spearKill.maxTargetDistance = v)
+                () -> config.spearKill.maxTargetDistance, v -> config.spearKill.maxTargetDistance = v),
+            Options.floatSlider("stevelander.spearKill.overkill", 1.0F, 10.0F, 0.5F,
+                () -> config.spearKill.overkill, v -> config.spearKill.overkill = v)
+        );
+        this.list.addSmall(
+            Options.intSlider("stevelander.spearKill.maxPackets", 1, 40,
+                () -> config.spearKill.maxPackets, v -> config.spearKill.maxPackets = v),
+            Options.intSlider("stevelander.spearKill.holdTicks", 1, 6,
+                () -> config.spearKill.holdTicks, v -> config.spearKill.holdTicks = v)
         );
         this.list.addSmall(
             Options.bool("stevelander.criticals.enabled",
@@ -209,6 +230,46 @@ public class StevelanderOptionsScreen extends OptionsSubScreen {
                 () -> config.criticals.jump.height, v -> config.criticals.jump.height = v),
             Options.floatSlider("stevelander.criticals.jumpRange", 1.0F, 6.0F, 0.1F,
                 () -> config.criticals.jump.range, v -> config.criticals.jump.range = v)
+        );
+    }
+
+    private void addFireTrail(StevelanderConfig config) {
+        this.list.addHeader(Component.translatable("stevelander.group.fireTrail"));
+        this.list.addSmall(
+            Options.bool("stevelander.fireTrail.enabled",
+                () -> config.fireTrail.enabled, v -> config.fireTrail.enabled = v),
+            Options.bool("stevelander.fireTrail.extendedRange",
+                () -> config.fireTrail.extendedRange, v -> config.fireTrail.extendedRange = v)
+        );
+        this.list.addSmall(
+            Options.bool("stevelander.fireTrail.avoidDamage",
+                () -> config.fireTrail.avoidDamage, v -> config.fireTrail.avoidDamage = v),
+            Options.floatSlider("stevelander.fireTrail.safeDistance", 0.0F, 6.0F, 0.5F,
+                () -> config.fireTrail.safeDistance, v -> config.fireTrail.safeDistance = v)
+        );
+        this.list.addSmall(
+            Options.bool("stevelander.fireTrail.reroute",
+                () -> config.fireTrail.reroute, v -> config.fireTrail.reroute = v),
+            Options.intSlider("stevelander.fireTrail.rerouteRadius", 1, 8,
+                () -> config.fireTrail.rerouteRadius, v -> config.fireTrail.rerouteRadius = v)
+        );
+        this.list.addSmall(
+            Options.intSlider("stevelander.fireTrail.lookaheadTicks", 0, 40,
+                () -> config.fireTrail.lookaheadTicks, v -> config.fireTrail.lookaheadTicks = v)
+        );
+        this.list.addSmall(
+            Options.intSlider("stevelander.fireTrail.durabilityReserve", 0, 32,
+                () -> config.fireTrail.durabilityReserve, v -> config.fireTrail.durabilityReserve = v)
+        );
+        this.list.addSmall(
+            Options.floatSlider("stevelander.fireTrail.gazeRange", 4.0F, 200.0F, 1.0F,
+                () -> config.fireTrail.gazeRange, v -> config.fireTrail.gazeRange = v),
+            Options.intSlider("stevelander.fireTrail.maxPackets", 1, 40,
+                () -> config.fireTrail.maxPackets, v -> config.fireTrail.maxPackets = v)
+        );
+        this.list.addSmall(
+            Options.bool("stevelander.fireTrail.carrierBlocks",
+                () -> config.fireTrail.carrierBlocks, v -> config.fireTrail.carrierBlocks = v)
         );
     }
 
@@ -265,12 +326,14 @@ public class StevelanderOptionsScreen extends OptionsSubScreen {
     }
 
     private void refreshBindLabels() {
-        if (this.flightBind == null || this.xrayBind == null) {
+        if (this.flightBind == null || this.xrayBind == null || this.fireTrailBind == null) {
             return;
         }
 
         this.flightBind.setMessage(label("stevelander.keybind.flight", Keybinds.flight(), Bind.FLIGHT));
         this.xrayBind.setMessage(label("stevelander.keybind.xray", Keybinds.xray(), Bind.XRAY));
+        this.fireTrailBind.setMessage(
+            label("stevelander.keybind.fireTrail", Keybinds.fireTrail(), Bind.FIRE_TRAIL));
     }
 
     private Component label(String key, int bound, Bind bind) {
@@ -294,10 +357,10 @@ public class StevelanderOptionsScreen extends OptionsSubScreen {
             ? GLFW.GLFW_KEY_UNKNOWN
             : InputConstants.getKey(event).getValue();
 
-        if (this.rebinding == Bind.FLIGHT) {
-            Keybinds.setFlight(key);
-        } else {
-            Keybinds.setXray(key);
+        switch (this.rebinding) {
+            case FLIGHT -> Keybinds.setFlight(key);
+            case XRAY -> Keybinds.setXray(key);
+            case FIRE_TRAIL -> Keybinds.setFireTrail(key);
         }
 
         this.rebinding = null;
