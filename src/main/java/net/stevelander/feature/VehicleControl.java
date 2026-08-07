@@ -78,18 +78,18 @@ public final class VehicleControl {
         final boolean moving = forwards || backwards || left || right;
 
         if (!moving) {
-            vehicle.setDeltaMovement(new Vec3(0.0, y, 0.0));
+            vehicle.setDeltaMovement(Flight.capDiagonal(new Vec3(0.0, y, 0.0)));
             return true;
         }
 
         final float yaw = Flight.movementDirection(vehicle.getYRot(), forwards, backwards, left, right);
         final double angle = Math.toRadians(yaw);
 
-        vehicle.setDeltaMovement(new Vec3(
+        vehicle.setDeltaMovement(Flight.capDiagonal(new Vec3(
             -Math.sin(angle) * horizontal,
             y,
             Math.cos(angle) * horizontal
-        ));
+        )));
 
         return true;
     }

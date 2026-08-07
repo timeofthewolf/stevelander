@@ -118,7 +118,7 @@ public final class Flight {
         }
     }
 
-    private static Vec3 capDiagonal(Vec3 movement) {
+    static Vec3 capDiagonal(Vec3 movement) {
         final double horizontal = Math.sqrt(movement.x * movement.x + movement.z * movement.z);
         final double vertical = Math.abs(movement.y);
         final double cap = Math.max(horizontal, vertical);

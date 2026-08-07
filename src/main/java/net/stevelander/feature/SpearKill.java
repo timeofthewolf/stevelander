@@ -105,12 +105,18 @@ public final class SpearKill {
 
         final int ticks = Math.max(1, (int) Math.ceil(travel / speed));
 
-        Vec3 direction = target.aim().subtract(player.getEyePosition());
+        Vec3 direction = lead(target.entity(), ticks).subtract(player.getEyePosition());
         if (direction.lengthSqr() <= 0.0) {
             direction = player.getLookAngle();
         }
 
-        final Vec3 movement = direction.normalize().scale(travel / ticks);
+        direction = direction.normalize();
+
+        if (clearDistance(player, direction, travel) < travel) {
+            return;
+        }
+
+        final Vec3 movement = direction.scale(travel / ticks);
 
         for (int i = 0; i < ticks; i++) {
             plan.addLast(movement);
@@ -164,7 +170,7 @@ public final class SpearKill {
         cooldown = ABORT_COOLDOWN;
     }
 
-    private record Target(LivingEntity entity, Vec3 aim, double distance) {
+    private record Target(LivingEntity entity, double distance) {
     }
 
     private static Target findTarget(LocalPlayer player, StevelanderConfig.SpearKill settings) {
@@ -180,6 +186,9 @@ public final class SpearKill {
                 && entity.isAlive()
                 && entity.isAttackable()
                 && !entity.isSpectator()
+                && !entity.isInvulnerable()
+                && !entity.isDeadOrDying()
+                && !entity.isPassengerOfSameVehicle(player)
         );
 
         Target best = null;
@@ -195,22 +204,38 @@ public final class SpearKill {
             }
 
             final double alignment = offset.scale(1.0 / distance).dot(look);
-            if (alignment < bestAlignment || !canSee(player, eye, aim)) {
+            if (alignment < bestAlignment || !canSee(player, eye, entity)) {
                 continue;
             }
 
             bestAlignment = alignment;
-            best = new Target(entity, aim, distance);
+            best = new Target(entity, distance);
         }
 
         return best;
     }
 
-    private static boolean canSee(LocalPlayer player, Vec3 eye, Vec3 aim) {
+    private static boolean canSee(LocalPlayer player, Vec3 eye, LivingEntity entity) {
+        final AABB box = entity.getBoundingBox();
+        final Vec3 centre = box.getCenter();
+
+        return clear(player, eye, centre)
+            || clear(player, eye, new Vec3(centre.x, box.maxY - 0.1, centre.z))
+            || clear(player, eye, new Vec3(centre.x, box.minY + 0.1, centre.z));
+    }
+
+    private static boolean clear(LocalPlayer player, Vec3 eye, Vec3 point) {
         final HitResult hit = player.level().clip(new ClipContext(
-            eye, aim, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+            eye, point, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
 
         return hit.getType() == HitResult.Type.MISS;
+    }
+
+    private static Vec3 lead(LivingEntity entity, int ticks) {
+        final Vec3 velocity = entity.position()
+            .subtract(new Vec3(entity.xOld, entity.yOld, entity.zOld));
+
+        return entity.getBoundingBox().getCenter().add(velocity.scale(ticks));
     }
 
     private static void launch(
@@ -222,7 +247,7 @@ public final class SpearKill {
         StevelanderConfig.SpearKill settings
     ) {
         final Vec3 eye = player.getEyePosition();
-        final Vec3 direction = target.aim().subtract(eye).normalize();
+        final Vec3 direction = lead(target.entity(), 1).subtract(eye).normalize();
 
         final AttackRange range = player.getAttackRangeWith(using);
         final double maxReach = range.effectiveMaxRange(player);
